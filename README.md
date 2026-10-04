@@ -2,7 +2,7 @@
 
 A 2D U-Net with Squeeze-and-Excitation blocks that segments multiple sclerosis
 lesions from co-registered FLAIR, T1 and T2 brain MRI. Bachelor's thesis in
-Mathematics and Statistics, Complutense University of Madrid — graded 9/10.
+Mathematics and Statistics, Complutense University of Madrid, graded 9/10.
 Predictions were reviewed by a practising neurologist.
 
 ![Qualitative results](docs/images/qualitative_panel.png)

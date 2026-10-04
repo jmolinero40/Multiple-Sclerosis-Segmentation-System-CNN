@@ -325,10 +325,11 @@ anywhere, including CI.
 If this work is useful to you:
 
 ```bibtex
-@mastersthesis{molinero2026ms,
+@thesis{molinero2026ms,
   author = {Molinero Araguas, Javier},
   title  = {Multiple Sclerosis Lesion Segmentation in Brain MRI
             with Convolutional Neural Networks},
+  type   = {Bachelor's thesis},
   school = {Complutense University of Madrid},
   year   = {2026}
 }

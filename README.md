@@ -52,11 +52,9 @@ and 0.750 mean per-slice Dice on this split, against 0.7185 and 0.7493 here.
 Identical architecture, data, patient split and decision threshold; the only
 difference is the channel-attention gate.
 
-The gain is almost entirely in **recall**: +0.065, against −0.006 in precision.
-Channel attention does not make the network more cautious, it makes it find
-lesions it was otherwise missing. With the modality axis as the channel axis,
-SE learns to reweight FLAIR, T1 and T2 per slice, which is what recovers lesions
-that FLAIR alone reads ambiguously.
+The gain is almost entirely in recall (+0.065, against −0.006 in precision) at the same decision threshold. Because precision holds while recall rises, this is not just a shift of the operating point along the same precision–recall curve: at this threshold the SE model is genuinely better.
+
+Why is an open question. The SE blocks sit after every double convolution (nine in total), so they reweight learned feature channels, not the input modalities: by the first SE block, FLAIR, T1 and T2 are already fused into 32 feature maps. What SE adds is a gate computed by global average pooling over the whole slice, so each block can rescale its channels according to slice-level context, such as which part of the brain the slice shows or how much hyperintense tissue it contains. One plausible reading is that this lets the network raise the sensitivity of lesion-responsive channels on slices where small, low-contrast lesions are likely, which would show up as recall. This is a hypothesis, not a finding: both models were trained once, in separate sessions, so the gap is indicative and may partly be seed variance.
 
 > Both models were trained once, so the gap is indicative rather than a
 > significance claim. The two runs also come from separate training sessions
@@ -164,10 +162,7 @@ primary signal; T1 shows them as hypointense, which separates true lesions from
 FLAIR artefacts; T2 is sensitive but less specific. Stacking them lets the first
 convolution see all three at once rather than fusing late.
 
-**Squeeze-and-Excitation, not spatial attention.** In this setup the modality
-axis *is* the channel axis, so a learned per-channel gate lets the network weight
-FLAIR, T1 and T2 differently depending on slice content. That is exactly what SE
-does, and it costs about 3% extra parameters.
+**Squeeze-and-Excitation after every block.** Each double convolution ends with an SE gate (reduction 16) that rescales feature channels using a summary of the whole slice. It is a cheap way to give a 2D encoder–decoder access to global context, at about 3% extra parameters. It acts on learned features, not on the input modalities directly: the three modalities are fused at the first convolution.
 
 **GroupNorm, not BatchNorm.** Training runs at batch size 8 on one consumer GPU.
 BatchNorm statistics are noisy at that size, and with lesions occupying well under

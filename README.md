@@ -15,9 +15,7 @@ positives in red and false negatives in blue.*
 
 ## Results
 
-Evaluated on **11 held-out patients** (MSLesSeg P65–P75) that appear in no
-other split. The decision threshold (0.70) and the minimum connected-component
-size (10 px) were fixed before evaluation, not tuned on test.
+Evaluated on 11 held-out patients (MSLesSeg P65–P75) that appear in no other split. As in the thesis, the decision threshold (0.70) and the minimum connected-component size (10 px) are fixed operating points set by hand, not selected on validation; the default configuration of this repository (configs/multimodal.yaml) instead sweeps the threshold on validation and stores it in the checkpoint.
 
 | Metric | Value |
 |---|---|
@@ -177,7 +175,7 @@ lesions; `pos_weight=3.0` inside the BCE term adds recall pressure. The mix is
 
 **Decision threshold chosen on validation, never on test.** Swept every epoch and
 stored inside the checkpoint, so evaluation cannot silently tune it. Passing
-`--threshold` to the evaluation script prints a warning for this reason.
+`--threshold` to the evaluation script prints a warning for this reason. (This applies to the default configuration; the thesis reproduction keeps the original fixed 0.70.)
 
 **Connected components under 10 pixels are dropped.** The network fires on
 isolated pixels at the grey/white matter boundary. A lesion that small is below
@@ -199,10 +197,11 @@ what the model would see in deployment, where nobody pre-filters its input.
 - **2D, not 3D.** Each slice is segmented independently. A 3D U-Net or through-plane
   consistency post-processing would use anatomy the current model ignores.
 - **No inter-rater variability.** The ground truth is one consensus annotation, so
-  a Dice of 0.75 cannot be compared against the human ceiling, which for MS lesion
+  a voxel-level Dice of 0.72 cannot be compared against the human ceiling, which for MS lesion
   segmentation is itself typically in the 0.7–0.8 range.
 - **Single seed.** Reported numbers are one run. The per-patient spread is wide
   enough that seed variation matters.
+- **Fixed threshold in the thesis run.** The reported figures use the thesis’s hand-set threshold of 0.70; the validation-selected threshold of the default configuration may give a slightly different operating point.
 
 ---
 
@@ -277,7 +276,7 @@ Each step is also available as a console script (`msseg-preprocess`,
 ### Tests
 
 ```bash
-pytest                 # 39 tests, a few seconds, no dataset required
+pytest                 # 56 tests, a few seconds, no dataset required
 ruff check src tests
 ```
 
@@ -310,7 +309,7 @@ anywhere, including CI.
 │   ├── train.py             training loop
 │   ├── evaluate.py          held-out evaluation
 │   └── figures.py           report figures
-└── tests/                   39 tests over synthetic data
+└── tests/                   56 tests over synthetic data
 ```
 
 ---
